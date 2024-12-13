@@ -91,7 +91,7 @@ int calculator(char *str)
         {
             while (top2 != -1 && precedence(str[i]) <= precedence(operator[top2]))
             {
-                calculateTop(nums, operator, &top1, &top2);
+                calculateTop(nums, operator, & top1, &top2);
             }
             top2++;
             operator[top2] = str[i];
@@ -104,20 +104,30 @@ int calculator(char *str)
     }
     while (top2 != -1)
     {
-        calculateTop(nums, operator, &top1, &top2);
+        calculateTop(nums, operator, & top1, &top2);
     }
     return nums[top1];
 }
 
 int main()
 {
-    int size;
-    printf("Enter the size of String ");
-    scanf("%d", &size);
-    getchar();
+    char *str, c;
+    int i = 0, j = 1;
 
-    char str[size];
-    fgets(str, size, stdin);
+    str = (char *)malloc(sizeof(char));
+    printf("Enter String : ");
+
+    while (c != '\n')
+    {
+        c = getc(stdin);
+
+        str = (char *)realloc(str, j * sizeof(char));
+        str[i] = c;
+
+        i++;
+        j++;
+    }
+    str[i] = '\0';
 
     printf("%d", calculator(str));
     return 0;
