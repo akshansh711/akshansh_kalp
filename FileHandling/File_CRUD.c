@@ -1,56 +1,113 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 
-#define FILENAME "user.txt"
+#define FILENAME "users.txt"
 
-typedef struct
+typedef struct 
 {
-    char firstName[20];
-    char lastName[20];
+    char *name;
     int id;
     int age;
 } Users;
 
-void userDetails(char *firstName, char *lastName, int *age) {
-    getchar();
+char* get_Username() {
 
-    printf("Enter Firstname: ");
-    fgets(firstName, 20, stdin);
-    firstName[strcspn(firstName, "\n")] = '\0';
+    char *name = (char*)malloc(sizeof(char)); 
+    if (!name) {
+        printf("Unable to allocate memory\n");
+        return NULL;
+    }
 
-    printf("Enter Lastname: ");
-    fgets(lastName, 20, stdin);
-    lastName[strcspn(lastName, "\n")] = '\0';
+    printf("Enter username: ");
+    char ch;
+    int i = 0;
 
-    printf("Enter user age: ");
-    scanf("%d",age);
+    while ((ch = getchar()) != '\n') 
+    {
+        name = (char*)realloc(name, i + 2); 
+        if (!name) {
+            printf("Memory allocation failed\n");
+            return NULL;
+        }
+        name[i] = ch;
+        i++;
+    }
+    name[i] = '\0'; 
+
+    return name;
 }
 
-void newUser()
-{
-    Users user;
+int get_ID() {
+    int id;
+    printf("Enter unique userId : ");
 
-    FILE *fptr = fopen(FILENAME, "a");
-    if (!fptr)
+    while (scanf("%d",&id) != 1)
     {
-        printf("file does not exist");
+        while (getchar() != '\n');
+        printf("Enter a valid ID : ");
+    }
+    return id;
+}
+
+void newUser() {
+    Users user;
+    int id,fnd = 0;
+
+    FILE *fptr = fopen(FILENAME,"r");
+    if(!fptr) {
+        printf("File does not exist \n");
         return;
     }
-    printf("Enter unique userId ");
-    scanf("%d", &user.id);
 
-    userDetails(user.firstName, user.lastName, &user.age);
+    id = get_ID();
+    if(!id) {
+        fclose(fptr);
+        return;
+    }
 
-    fprintf(fptr, "%d %s %s %d\n", user.id, user.firstName, user.lastName, user.age);
+    char tempName[100]; 
+    while (fscanf(fptr,"%d %[^\t\n] %d",&user.id, tempName, &user.age) != EOF)
+    {
+        if(user.id == id) {
+            fnd = 1;
+            printf("This user id is already taken, Please try another one\n");
+            break;
+        }
+    }
+    if (fnd)
+    {
+        fclose(fptr);
+        return;
+    }
     fclose(fptr);
-    printf("User added successfully\n");
+
+    fptr = fopen(FILENAME,"a");
+    if(!fptr) {
+        printf("File not found");
+        return;
+    }
+
+    user.id = id;
+    getchar();
+
+    user.name = get_Username();
+    if(!user.name) {
+        fclose(fptr);
+        return;
+    }
+
+    printf("Enter age : ");
+    scanf("%d",&user.age);
+
+    fprintf(fptr, "%d\t%s\t\t%d\n", user.id, user.name, user.age);
+    free(user.name);
+    fclose(fptr);
 }
 
-void updateUser()
-{
+void updateUser() {
     Users user;
-    int id, fnd = 0;
+    int id = 0, fnd = 0;
 
     printf("Enter id of user you want to update : ");
     scanf("%d", &id);
@@ -69,14 +126,42 @@ void updateUser()
         return;
     }
 
-    while (fscanf(fptr, "%d %s %s %d", &user.id, user.firstName, user.lastName, &user.age) != EOF)
+    while (fscanf(fptr, "%d %[^\t\n] %d", &user.id, user.name, &user.age) != EOF)
     {
+        
         if (user.id == id)
         {
             fnd = 1;
-            userDetails(user.firstName, user.lastName, &user.age);
+            getchar();
+
+            user.name = (char*)malloc(sizeof(char));
+            if(!user.name) {
+                printf("Memory allocation failed\n");
+                fclose(fptr);
+                return;
+            }
+
+            printf("Enter username : ");
+            char ch;
+            int i = 0;
+            while ((ch = getchar()) != '\n')
+            {
+                user.name = (char*)realloc(user.name,i+2);
+                if(!user.name) {
+                    printf("Memory allocation failed\n");
+                    fclose(fptr);
+                    return;
+                }
+
+                user.name[i] = ch;
+                i++;
+            }
+            user.name[i] = '\0';
+
+            printf("Enter age : ");
+            scanf("%d",&user.age);
         }
-        fprintf(fptr1, "%d %s %s %d\n", user.id, user.firstName, user.lastName, user.age);
+        fprintf(fptr1, "%d\t%s\t\t%d\n", user.id, user.name, user.age);
     }
     fclose(fptr);
     fclose(fptr1);
@@ -85,17 +170,16 @@ void updateUser()
     {
         remove(FILENAME);
         rename("temp.txt", FILENAME);
-        printf("User updated successfully");
+        printf("User updated successfully\n");
     }
     else
     {
         remove("temp.txt");
-        printf("User not found");
+        printf("User not found with id %d\n",id);
     }
 }
 
-void displayUser()
-{
+void displayUser() {
     FILE *fptr = fopen(FILENAME, "r");
     Users user;
 
@@ -108,16 +192,30 @@ void displayUser()
     printf("\nUser Records:\n");
     printf("ID\tName\t\tAge\n");
 
-    while (fscanf(fptr, "%d %s %s %d", &user.id, user.firstName, user.lastName, &user.age) != EOF)
+    while (1)
     {
-        printf("%d\t%s %s\t%d\n", user.id, user.firstName, user.lastName, user.age);
-    }
+        user.name = (char*)malloc(100);
+        if(!user.name) {
+            printf("Memory allocation failed.\n");
+            fclose(fptr);
+            return;
+        }
 
+        if (fscanf(fptr,"%d %[^\t\n] %d",&user.id,user.name,&user.age) == 3)
+        {
+            printf("%d\t%s\t%d\n",user.id,user.name,user.age);
+        }else{
+            free(user.name);
+            break;
+        }
+
+        free(user.name);
+    }
+    
     fclose(fptr);
 }
 
-void deleteUser()
-{
+void deleteUser() {
     Users user;
     int id, fnd = 0;
 
@@ -138,18 +236,31 @@ void deleteUser()
         printf("Error creating file\n");
         return;
     }
-    while (fscanf(fptr, "%d %s %s %d", &user.id, user.firstName, user.lastName, &user.age) != EOF)
+
+    while (1)
     {
-        if (user.id == id)
+        user.name = (char*)malloc(100);
+        if(!user.name) {
+            printf("Memory not allocated\n");
+            fclose(fptr);
+            fclose(fptr1);
+            return;
+        }
+        if (fscanf(fptr,"%d %[^\t\n] %d",&user.id, user.name, &user.age) != 3)
         {
+            free(user.name);
+            break;
+        }
+        
+        if(user.id == id) {
             fnd = 1;
-            continue;
+        }else {
+            fprintf(fptr1, "%d\t%s\t\t%d\n",user.id,user.name,user.age);
         }
-        else
-        {
-            fprintf(fptr1, "%d %s %s %d\n", user.id, user.firstName, user.lastName, user.age);
-        }
+
+        free(user.name);
     }
+    
     fclose(fptr);
     fclose(fptr1);
 
@@ -162,13 +273,20 @@ void deleteUser()
     else
     {
         remove("temp.txt");
-        printf("User not found \n");
+        printf("User not found with id %d\n",id);
     }
 }
 
-int main()
-{
-    int options;
+int main() {
+
+    FILE *fptr = fopen(FILENAME,"r");
+    if(!fptr) {
+        fptr = fopen(FILENAME,"a");
+        printf("File created successfully.\n");
+    }
+    fclose(fptr);
+
+    int options = 0;
     do
     {
         printf("Select the operation you want to perform \n");
@@ -178,27 +296,30 @@ int main()
         printf("4. Delete an existing record \n");
         printf("5. Enter 5 for exit \n");
         printf("Enter the operation you want to perform ");
-        scanf("%d", &options);
 
-        switch (options)
-        {
-        case 1:
-            newUser();
-            break;
-        case 2:
-            updateUser();
-            break;
-        case 3:
-            displayUser();
-            break;
-        case 4:
-            deleteUser();
-            break;
-        case 5:
-            printf("Termination...");
-            break;
-        default:
-            printf("Invalid choice");
+        scanf("%d",&options);
+
+        switch (options) {
+            case 1:
+                newUser();
+                break;
+            case 2:
+                updateUser();
+                break;
+            case 3:
+                displayUser();
+                break;
+            case 4:
+                deleteUser();
+                break;
+            case 5:
+                printf("Termination....!!!");
+                break;   
+            default :
+                printf("Invalid choice ");     
         }
+
     } while (options != 5);
+    
+    scanf("%d",&options);
 }
