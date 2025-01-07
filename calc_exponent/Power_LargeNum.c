@@ -1,82 +1,57 @@
 #include<stdio.h>
 
-#define MAX 10000
 
-int multiply(int x,int result[], int size) {
-    int carry = 0;
-    int prod;
-
-    for (int i = 0; i < size; i++)
-    {
-        prod = result[i] * x + carry;
-        result[i] = prod % 10;
-        carry = prod / 10;
-    }
-    
-    while (carry)
-    {
-        result[size] = carry % 10;
-        carry = carry/10;
-        size++;
-    }
-    
-    return size;
-}
-
-int modulo(int x, int n, int m) {
+long long modulo_func(long long base, long long exponent, long long modulo) {
     long long resultMod = 1;
-    long long baseMod = x % m;
+    base = base % modulo;
 
-    while (n > 0)
+    while (exponent > 0)
     {
-        if(n % 2 == 1) {
-            resultMod = (resultMod * baseMod) % m;
+        if(exponent % 2 == 1) {
+            resultMod = (resultMod * base) % modulo;
         }
 
-        baseMod = (baseMod * baseMod) % m;
-        n = n / 2;
+        base = (base * base) % modulo;
+        exponent = exponent / 2;
     }
     return resultMod;
 }
 
-int power(int x, int n, int m) {
-    int size = 0;
-    int result[MAX];
-    int temp = x;
 
-    while (temp != 0)
+long long validInput(const char *sentence,long long min) {
+    long long value;
+    printf("%s ",sentence);
+    while (scanf("%lld",&value) != 1 || value < min)
     {
-        result[size] = temp % 10;
-        size++;
-        temp = temp / 10;
-    }
-    
-    for (int i = 2; i <= n; i++)
-    {
-        size = multiply(x,result, size);
-    }
-    
-    printf("x ^ n = ");
+        printf("Invalid input\n");
+        return -1;
 
-    for (int i = size - 1; i >= 0; i--)
-    {
-        printf("%d",result[i]);
     }
-    
-    printf("\n"),
-    printf("x %% m = %d",modulo(x,n,m));
+    return value;
 }
 
-
 int main() {
-    int x,m,n;
+    long long base,modulo,exponent;
 
-    printf("Enter base value : ");
-    scanf("%d",&x);
-    printf("Enter exponent value : ");
-    scanf("%d",&n);
-    printf("Enter modulo value : ");
-    scanf("%d",&m);
+    base = validInput("Enter base value : ",0);
+    if(base == -1) {
+        return 0;
+    }
 
-    power(x,n,m);
+    exponent = validInput("Enter exponent value : ",0);
+
+    if(exponent == -1) {
+        return 0;
+    }
+
+    modulo = validInput("Enter modulo value : ",2);
+    
+    if(modulo == -1) {
+        return 0;
+    }
+    
+    long long ans = modulo_func(base,exponent,modulo);
+    printf("%lld", ans);
+
+    return 0;
 }
