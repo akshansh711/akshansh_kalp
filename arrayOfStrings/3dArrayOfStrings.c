@@ -2,11 +2,11 @@
 #include<string.h>
 
 int findLength(char str[]) {
-    int len = 0;
-    while(str[len] != '\0') {
-        len++;
+    int length = 0;
+    while(str[length] != '\0') {
+        length++;
     }
-    return len;
+    return length;
 }
 
 void stringCopy(char to[], char from[]) {
@@ -19,31 +19,60 @@ void stringCopy(char to[], char from[]) {
     to[i] = '\0';
 }
 
-int validInput(int min) {
-    int value;
-    while(scanf("%d",&value) != 1 || value < min) {
-        printf("Invalid input !!!");
-        return -1;
+int validInput(int min, int max) {
+    char string[101];
+    scanf("%s",string);
+
+    int value = 0;
+    int index = 0;
+    int isValid = 0;
+
+    while(string[index] != '\0') {
+        if(string[index] >= '0' && string[index] <= '9') {
+            isValid = 1;
+        }else {
+            isValid = 0;
+            break;
+        }
+        index++;
     }
-    return value;
+
+    if(isValid) {
+        value = 0;
+        index = 0;
+        for(index = 0; string[index] != '\0'; index++) {
+            value = value * 10 + (string[index] - '0');
+        }
+        if(value > max || value < min) {
+            isValid = 0;
+        }
+    }
+
+    if(!isValid) {
+        printf("Invalid input !!!");
+            return -1;
+    }else {
+            return value;
+    }
 }
 
 int main() {
     int rows,columns;
     printf("Enter number of rows ");
-    rows = validInput(0);
+    rows = validInput(1,10);
+
     
     if(rows == -1) {
         return 0;
     }
     printf("Enter number of columns ");
-    columns = validInput(0);
+    columns = validInput(1,101);
     
     if(columns == -1) {
         return 0;
     }
 
-    char students[rows][columns][50];
+    char students[rows][columns][51];
 
     for (int i = 0; i < rows; i++)
     {
