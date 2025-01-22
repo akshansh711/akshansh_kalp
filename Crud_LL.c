@@ -11,13 +11,13 @@ typedef struct List {
     node *tail;
 }list;
 
-int takeInput(int val) {
-    scanf("%d",&val);
-    if(val < -1000 || val > 1000) {
+int takeInput(int value) {
+    scanf("%d",&value);
+    if(value < -1000 || value > 1000) {
         printf("Out of bounds !!!");
         exit(0);
     }
-    return val;
+    return value;
 }
 
 int addAtEnd(node **head, node **tail, int *sizeLL) {
@@ -64,6 +64,11 @@ int insertRandom(node **head, node **tail, int *sizeLL) {
     printf("Enter the index where you want to insert : ");
     scanf("%d",&ind);
 
+    if(ind < 0) {
+        printf("Out of Bounds !!!");
+        return 0;
+    }
+
     if (ind > *sizeLL+1)
     {
         printf("Out of bound !!!\n");
@@ -101,6 +106,11 @@ int updateLL(node **head, node **tail,int *sizeLL) {
     int ind, val;
     printf("Enter the index you want to update : ");
     scanf("%d",&ind);
+
+    if(ind < 0) {
+        printf("Out of bounds !!!");
+        return 0;
+    }
 
     if(ind > *sizeLL) {
         printf("Out of bounds !!!\n");
@@ -167,6 +177,11 @@ int deleteRandom(node **head, node **tail, int *sizeLL) {
     int ind;
     printf("Enter the index of node you want to delete : ");
     scanf("%d",&ind);
+
+    if(ind < 0) {
+        printf("Out of bounds !!!");
+        return 0;
+    }
 
     if(ind > *sizeLL) {
         printf("Out of bound !!!\n");
