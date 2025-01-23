@@ -13,7 +13,7 @@ typedef struct List{
 
 node *temp = NULL
 
-int createLL(node **head, node **tail) {
+void createLL(node **head, node **tail) {
     printf("Enter value you want to add : ");
     int val;
     scanf("%d",&val);
@@ -70,7 +70,7 @@ void reverseKgroupsKspaces(node **head, int k) {
         if(current != NULL) {
             current->next = NULL;
         }
-        reverse(&start,&current);
+        reverse(&start);
         if(prev == NULL) {
             *head = start;
         }else{
