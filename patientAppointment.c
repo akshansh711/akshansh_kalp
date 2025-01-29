@@ -21,14 +21,55 @@ typedef struct List
     node *tail;
 }list;
 
+int getId(node **newNode, node **head) {
+
+    printf("Enter id of patient : ");
+    scanf("%d",&(*newNode)->id);
+    int flag = 0;
+    
+
+    node *temp = *head;
+    while (temp != NULL)
+        {
+            if(temp->id == (*newNode)->id) {
+                printf("ID already exists\n");
+                return 1;
+            }
+            temp = temp->next;
+        }
+
+        return 0;
+}
+
+int getSeverity(node **newNode, node **head) {
+
+    printf("Enter severity of patient : ");
+    scanf("%s",&(*newNode)->severity);
+    int flag = 0;
+
+    node *temp = *head;
+        if(strcmp((*newNode)->severity, "critical") != 0 && strcmp((*newNode)->severity, "stable") != 0
+           && strcmp((*newNode)->severity, "serious") != 0
+        ){
+            printf("Invalid input !!!\n");
+            return 1;
+        }
+}
+
+
 void createLL(node **head, node **tail) {
 
     node *newNode = (node *)malloc(sizeof(node));
 
-    printf("Enter id of patient : ");
-    scanf("%d",&newNode->id);
-    printf("Enter severity of patient : ");
-    scanf("%s",newNode->severity);
+    if(getId(&newNode,&*head)) {
+        getId(&newNode,&*head);
+    }
+
+    if (getSeverity(&newNode,&*head))
+    {
+        getSeverity(&newNode,&*head);
+    }
+    
 
     newNode->next = NULL;
 
@@ -48,14 +89,10 @@ node* sortPatient(node *head, node **newHead, node **newTail) {
     }
 
     node *dummy1 = (node *)malloc(sizeof(node));
-    dummy1->id = -1;
-    dummy1->next = NULL;
     node *dummy2 = (node *)malloc(sizeof(node));
-    dummy2->id = -1;
-    dummy2->next = NULL;
     node *dummy3 = (node *)malloc(sizeof(node));
-    dummy3->id = -1;
-    dummy3->next = NULL;
+
+    dummy1->next = dummy2->next = dummy3->next = NULL;
 
     node *temp1 = dummy1;
     node *temp2 = dummy2;
@@ -69,7 +106,6 @@ node* sortPatient(node *head, node **newHead, node **newTail) {
         if(strcmp(current->severity, "critical") == 0) {
             temp1->next = current;
             temp1 = temp1->next;
-            
         }else if(strcmp(current->severity, "serious") == 0) {
             temp2->next = current;
             temp2 = temp2->next;
@@ -80,11 +116,33 @@ node* sortPatient(node *head, node **newHead, node **newTail) {
 
         current = current->next;
     }
+    temp1->next = NULL;
+    temp2->next = NULL;
+    temp3->next = NULL;
 
-    temp1->next = dummy2->next;
-    temp2->next = dummy3->next;
+    node *newHeadTemp = NULL;
+    if (dummy1->next)
+    {
+        newHeadTemp = dummy1->next;
+        if (dummy2->next)
+        {
+            temp1->next = dummy2->next;
+        }else{
+            temp1->next = dummy3->next;
+        }
+    }else if(dummy2->next) {
+        newHeadTemp = dummy2->next;
+        temp2->next = dummy3->next;
+    }else{
+        newHeadTemp = dummy3->next;
+    }
     
-    return dummy1->next;
+    return newHeadTemp;
+
+    // temp1->next = dummy2->next;
+    // temp2->next = dummy3->next;
+    
+    // return dummy1->next;
 }
 
 void printLL(node **head) {
@@ -98,7 +156,7 @@ void printLL(node **head) {
             printf("%d : %s\n",temp->id, temp->severity);
             temp = temp->next;
         }
-        
+        printf("\n");
     }
 }
 
@@ -122,5 +180,6 @@ int main() {
 
     node *newHead = sortPatient(l1->head,&newList->head,&newList->tail);
 
-    // printLL(&newHead);
+    printLL(&newHead);
 }
+
